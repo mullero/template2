@@ -1,0 +1,17 @@
+node_modules
+dist
+coverage
+.vite
+# Ignore local/dev env files, but allow the public production config that Vite
+# needs at build time (VITE_* values are public, not secrets).
+.env
+.env.local
+.env.development
+.env.development.local
+.env.production.local
+!.env.example
+!.env.production
+*.log
+.DS_Store
+Dockerfile
+.dockerignore

@@ -1,0 +1,1 @@
+"""Entrypoint contract tests."""

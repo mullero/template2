@@ -1,0 +1,83 @@
+[project]
+name = "machote-backend"
+version = "0.1.0"
+description = "machote — multi-tenant SaaS backend (FastAPI + SQLAlchemy async)"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W",      # pyflakes / pycodestyle
+    "I",                 # isort
+    "N",                 # pep8-naming
+    "UP",                # pyupgrade
+    "B",                 # bugbear
+    "C4",                # comprehensions
+    "ANN",               # type-annotation enforcement
+    "S",                 # bandit (security)
+    "A",                 # builtins shadowing
+    "T20",               # ban print / pprint
+    "RUF",               # ruff-specific
+    "SIM",               # simplify
+    "PTH",               # pathlib
+    "ARG",               # unused arguments
+]
+ignore = [
+    "ANN401",   # allow explicit Any where documented
+    "ANN101",   # deprecated: missing annotation for self
+    "ANN102",   # deprecated: missing annotation for cls
+    "B008",     # FastAPI Depends() in defaults is idiomatic
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "ANN201", "ANN001", "ARG001", "S105", "S106"]
+"alembic/env.py" = ["ANN"]
+
+[tool.ruff.lint.flake8-annotations]
+mypy-init-return = true
+suppress-none-returning = true
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+no_implicit_reexport = true
+plugins = ["pydantic.mypy"]
+exclude = ["alembic/versions/"]
+
+[[tool.mypy.overrides]]
+module = [
+    "firebase_admin.*",
+    "google.*",
+    "vertexai.*",
+    "slowapi.*",
+    "opentelemetry.*",
+    "neo4j.*",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+omit = ["src/telemetry.py", "src/services/ai_service.py"]
+
+[tool.coverage.report]
+show_missing = true
+# Enforced explicitly in CI via `--cov-fail-under`. Kept modest for the skeleton.
+fail_under = 45
+

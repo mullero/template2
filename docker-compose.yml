@@ -1,0 +1,227 @@
+# =============================================================================
+# docker-compose.yml — local development stack.
+#
+# Prereq: run `scripts/sync-config.sh` first (generates backend/.env and
+# frontend/.env.production from the root .env, single source of truth).
+#
+# Profiles (opt-in extras — default `up` starts only postgres + backend + frontend):
+#   graph          Neo4j (secondary derived store). Pair with GRAPH_ENABLED=true.
+#   auth           Firebase Auth emulator + one-shot seeder of a dev superadmin.
+#   tools          pgAdmin.
+#   observability  OpenTelemetry Collector + Jaeger.
+#
+# Quick starts:
+#   scripts/sync-config.sh && docker compose up --build
+#   docker compose --profile graph up --build
+#   docker compose --profile auth --profile graph up --build
+# =============================================================================
+
+name: machote
+
+services:
+  # ---------------------------------------------------------------------------
+  # Postgres — system of record.
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-machote}
+      POSTGRES_USER: ${POSTGRES_USER:-machote}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-machote_dev_password}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/10-init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-machote} -d ${POSTGRES_DB:-machote}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - app
+
+  # ---------------------------------------------------------------------------
+  # Neo4j — secondary, derived graph projection (profile: graph).
+  # ---------------------------------------------------------------------------
+  neo4j:
+    image: neo4j:5.26-community
+    restart: unless-stopped
+    profiles: ["graph"]
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-CHANGE_ME_NEO4J}
+      NEO4J_server_memory_pagecache_size: 256m
+      NEO4J_server_memory_heap_initial__size: 256m
+      NEO4J_server_memory_heap_max__size: 512m
+    ports:
+      - "${NEO4J_HTTP_PORT:-7474}:7474"
+      - "${NEO4J_BOLT_PORT:-7687}:7687"
+    volumes:
+      - neo4jdata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p '${NEO4J_PASSWORD:-CHANGE_ME_NEO4J}' 'RETURN 1' >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+    networks:
+      - app
+
+  # ---------------------------------------------------------------------------
+  # Backend — FastAPI. Reads generated backend/.env. Boots without Neo4j / the
+  # auth emulator (both are optional and probed lazily / best-effort).
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    ports:
+      - "${BACKEND_HOST_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - app
+
+  # ---------------------------------------------------------------------------
+  # Frontend — production-like nginx image serving the built SPA and proxying
+  # /api to the backend. Requires frontend/.env.production (from sync-config).
+  # For hot-reload dev, run `npm run dev` in ./frontend instead.
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_HOST_PORT:-8080}:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/healthz >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - app
+
+  # ---------------------------------------------------------------------------
+  # Firebase Auth emulator (profile: auth).
+  # To route the backend through it, set in your .env / .env.local BEFORE
+  # sync-config: FIREBASE_AUTH_EMULATOR_HOST=firebase-emulator:9099 and
+  # FIREBASE_PROJECT_ID=machote-local (and VITE_FIREBASE_AUTH_EMULATOR_HOST).
+  # ---------------------------------------------------------------------------
+  firebase-emulator:
+    build:
+      context: ./firebase
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    profiles: ["auth"]
+    ports:
+      - "${FIREBASE_AUTH_PORT:-9099}:9099"
+      - "${FIREBASE_UI_PORT:-4000}:4000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:9099/ >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    networks:
+      - app
+
+  # ---------------------------------------------------------------------------
+  # Firebase seed — one-shot: create a dev superadmin in the emulator and
+  # bootstrap it via the backend. Safe to re-run (profile: auth).
+  # ---------------------------------------------------------------------------
+  firebase-seed:
+    image: alpine:3.20
+    profiles: ["auth"]
+    restart: "no"
+    depends_on:
+      firebase-emulator:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    environment:
+      FIREBASE_AUTH_EMULATOR_HOST: ${FIREBASE_AUTH_EMULATOR_HOST:-firebase-emulator:9099}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-machote-local}
+      BACKEND_URL: http://backend:8000
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-admin@example.com}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-devpassword}
+      BOOTSTRAP_TENANT_ID: ${BOOTSTRAP_TENANT_ID:-dev-tenant}
+    volumes:
+      - ./scripts:/scripts:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command: "apk add --no-cache bash curl coreutils >/dev/null && bash /scripts/seed-dev-user.sh"
+    networks:
+      - app
+
+  # ---------------------------------------------------------------------------
+  # pgAdmin (profile: tools).
+  # ---------------------------------------------------------------------------
+  pgadmin:
+    image: dpage/pgadmin4:8
+    restart: unless-stopped
+    profiles: ["tools"]
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app
+
+  # ---------------------------------------------------------------------------
+  # OpenTelemetry Collector + Jaeger (profile: observability).
+  # Set OTEL_ENABLED=true and OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317.
+  # ---------------------------------------------------------------------------
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.111.0
+    restart: unless-stopped
+    profiles: ["observability"]
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./observability/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    depends_on:
+      - jaeger
+    networks:
+      - app
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.62.0
+    restart: unless-stopped
+    profiles: ["observability"]
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686"
+    networks:
+      - app
+
+volumes:
+  pgdata:
+  neo4jdata:
+
+networks:
+  app:
+    driver: bridge

@@ -1,0 +1,31 @@
+# Runtime dependencies (production). Dev/test deps live in requirements-dev.txt
+# to avoid pip resolver conflicts.
+fastapi>=0.115,<0.116
+uvicorn[standard]>=0.32,<0.33
+sqlalchemy[asyncio]>=2.0.36,<2.1
+asyncpg>=0.30,<0.31
+alembic>=1.14,<1.15
+pydantic>=2.9,<3
+pydantic-settings>=2.6,<3
+firebase-admin>=6.5,<7
+httpx>=0.27,<0.28
+slowapi>=0.1.9,<0.2
+python-multipart>=0.0.12,<0.1
+
+# Graph database (Neo4j)
+neo4j>=5.25,<6
+
+# AI provider (Gemini / Vertex AI)
+google-generativeai>=0.8,<0.9
+google-cloud-aiplatform>=1.71,<2
+google-cloud-storage>=2.18,<3
+
+# Observability
+opentelemetry-sdk>=1.28,<2
+opentelemetry-exporter-otlp-proto-grpc>=1.28,<2
+opentelemetry-instrumentation-fastapi>=0.49b0
+opentelemetry-instrumentation-sqlalchemy>=0.49b0
+opentelemetry-instrumentation-httpx>=0.49b0
+opentelemetry-instrumentation-logging>=0.49b0
+prometheus-fastapi-instrumentator>=7.0,<8
+sentry-sdk>=2.17,<3
