@@ -22,6 +22,7 @@ cors_origins = "CHANGE_ME"
 
 graph_enabled = false
 ai_enabled    = false
+tasks_enabled = false
 
 github_repository = "CHANGE_ME/CHANGE_ME"
 state_bucket      = "CHANGE_ME-tfstate"

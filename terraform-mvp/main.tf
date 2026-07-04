@@ -28,6 +28,8 @@ locals {
     "sts.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "aiplatform.googleapis.com",
+    "cloudtasks.googleapis.com",
+    "cloudscheduler.googleapis.com",
   ]
 }
 

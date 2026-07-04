@@ -12,25 +12,34 @@ locals {
     var.environment == "staging" ? "staging" : "testing"
   )
 
-  backend_plain_env = {
-    DEPLOYMENT_ENVIRONMENT = local.deploy_env
-    LOG_LEVEL              = "INFO"
-    POSTGRES_HOST          = google_sql_database_instance.postgres.private_ip_address
-    POSTGRES_PORT          = "5432"
-    POSTGRES_DB            = var.db_name
-    POSTGRES_USER          = var.db_user
-    API_PORT               = "8000"
-    AUTH_ENABLED           = "true"
-    ENABLE_SWAGGER         = var.environment == "prod" ? "false" : "true"
-    ENABLE_DETAILED_ERRORS = var.environment == "prod" ? "false" : "true"
-    ENABLE_DEV_ROUTES      = "false"
-    CORS_ORIGINS           = var.cors_origins
-    GRAPH_ENABLED          = tostring(var.graph_enabled)
-    AI_ENABLED             = tostring(var.ai_enabled)
-    RATE_LIMIT_ENABLED     = "true"
-    DRIFT_CHECK_ENABLED    = "true"
-  }
-
+  backend_plain_env = merge(
+    {
+      DEPLOYMENT_ENVIRONMENT = local.deploy_env
+      LOG_LEVEL              = "INFO"
+      POSTGRES_HOST          = google_sql_database_instance.postgres.private_ip_address
+      POSTGRES_PORT          = "5432"
+      POSTGRES_DB            = var.db_name
+      POSTGRES_USER          = var.db_user
+      API_PORT               = "8000"
+      AUTH_ENABLED           = "true"
+      ENABLE_SWAGGER         = var.environment == "prod" ? "false" : "true"
+      ENABLE_DETAILED_ERRORS = var.environment == "prod" ? "false" : "true"
+      ENABLE_DEV_ROUTES      = "false"
+      CORS_ORIGINS           = var.cors_origins
+      GRAPH_ENABLED          = tostring(var.graph_enabled)
+      AI_ENABLED             = tostring(var.ai_enabled)
+      RATE_LIMIT_ENABLED     = "true"
+      DRIFT_CHECK_ENABLED    = "true"
+    },
+    var.tasks_enabled ? {
+      TASKS_ENABLED         = "true"
+      CLOUD_TASKS_QUEUE     = google_cloud_tasks_queue.jobs[0].name
+      CLOUD_TASKS_LOCATION  = var.region
+      TASKS_SERVICE_ACCOUNT = google_service_account.tasks[0].email
+      # INTERNAL_BASE_URL + TASKS_OIDC_AUDIENCE must equal the deployed backend
+      # URL; set post-deploy (avoids a self-referential resource cycle).
+    } : {},
+  )
   # name -> secret_id (same project). Values are populated out-of-band.
   backend_secret_env = merge(
     {

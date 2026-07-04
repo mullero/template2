@@ -1,10 +1,18 @@
 # app-skeleton — Copilot repository instructions
 
 app-skeleton is a multi-tenant SaaS **starter skeleton**. It ships one complete
-vertical slice (`Project` → `Task`) across a FastAPI backend, a React/Vite
-frontend, a Neo4j graph projection, and Terraform for Google Cloud Run. Treat it
-as a template: keep the structure, patterns, and guardrails intact when adding
-features.
+vertical slice (`Project` → `Task`) plus an async AI-extraction slice
+(`Document` + `Job`) across a FastAPI backend, a React/Vite frontend, a Neo4j
+graph projection, Cloud Tasks background jobs, and Terraform for Google Cloud
+Run. Treat it as a template: keep the structure, patterns, and guardrails intact
+when adding features.
+
+> **`plans/` and `.github/memory/` are the source of truth.** Consult the
+> relevant `plans/*.md` before changing architecture, tables, or endpoints, and
+> update it in the SAME PR. New decisions get a new `plans/*.md` file — never
+> bury a decision in a code comment. `.github/memory/*.md` holds hard-won
+> operational facts (boot-time drift checks, test-isolation constraints); read
+> them before touching models, migrations, or the async worker.
 
 ## Golden rules
 
@@ -49,9 +57,14 @@ backend/ (FastAPI, Python 3.12)
 | Data access (Postgres) | `backend/src/repositories/` |
 | ORM models | `backend/src/models/` |
 | Graph projection | `backend/src/graph/` |
+| Background jobs (Cloud Tasks) | `backend/src/services/{task_queue,worker,scheduler}.py`, `backend/src/api/routes/internal.py` |
+| AI extraction pipeline | `backend/src/services/document_extraction.py`, `backend/src/api/routes/documents.py` |
 | Settings | `backend/src/config.py` |
 | Migrations | `backend/alembic/` |
 | Frontend pages/hooks/api | `frontend/src/{pages,hooks,api}/` |
+| Global job progress provider | `frontend/src/contexts/JobProgressContext.tsx` |
+| Architecture decisions | `plans/*.md` |
+| Agent operational memory | `.github/memory/*.md` |
 | Infra | `terraform-mvp/` |
 
 ## Adding a new entity (the intended workflow)

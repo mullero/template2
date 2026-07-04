@@ -155,6 +155,24 @@ variable "ai_enabled" {
   default     = false
 }
 
+variable "tasks_enabled" {
+  description = "Enable durable background jobs on Cloud Tasks (+ the queue service account)."
+  type        = bool
+  default     = false
+}
+
+variable "tasks_max_dispatches_per_second" {
+  description = "Cloud Tasks queue dispatch rate cap (also caps paid-API burst cost)."
+  type        = number
+  default     = 5
+}
+
+variable "tasks_max_concurrent_dispatches" {
+  description = "Cloud Tasks queue max concurrent dispatches."
+  type        = number
+  default     = 10
+}
+
 # --- CI / Workload Identity Federation --------------------------------------
 variable "github_repository" {
   description = "GitHub repo allowed to deploy via WIF, as 'owner/repo'."
