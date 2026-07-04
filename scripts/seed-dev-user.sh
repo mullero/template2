@@ -11,7 +11,7 @@ log() { printf '\033[0;34m[seed]\033[0m %s\n' "$*"; }
 die() { printf '\033[0;31m[seed] ERROR:\033[0m %s\n' "$*" >&2; exit 1; }
 
 EMULATOR_HOST="${FIREBASE_AUTH_EMULATOR_HOST:-firebase-emulator:9099}"
-PROJECT_ID="${FIREBASE_PROJECT_ID:-machote-local}"
+PROJECT_ID="${FIREBASE_PROJECT_ID:-app-skeleton-local}"
 BACKEND_URL="${BACKEND_URL:-http://backend:8000}"
 ADMIN_EMAIL="${BOOTSTRAP_ADMIN_EMAIL:-admin@example.com}"
 ADMIN_PASSWORD="${BOOTSTRAP_ADMIN_PASSWORD:-devpassword}"

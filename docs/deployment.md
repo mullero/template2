@@ -1,6 +1,6 @@
 # Deployment guide
 
-How to deploy machote to Google Cloud Run using `terraform-mvp/` and the GitHub
+How to deploy app-skeleton to Google Cloud Run using `terraform-mvp/` and the GitHub
 Actions workflows. See [terraform-mvp/README.md](../terraform-mvp/README.md) for
 module details.
 

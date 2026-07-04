@@ -7,11 +7,11 @@ name: Deploy
 #
 # Required GitHub *variables* (Settings → Secrets and variables → Actions →
 # Variables), typically per Environment:
-#   GCP_PROJECT_ID     e.g. machote-prod
+#   GCP_PROJECT_ID     e.g. app-skeleton-prod
 #   GCP_REGION         e.g. us-central1
 #   WIF_PROVIDER       projects/<n>/locations/global/workloadIdentityPools/<pool>/providers/github-oidc
-#   DEPLOYER_SA        machote-<env>-deployer@<project>.iam.gserviceaccount.com
-#   TF_STATE_BUCKET    machote-<env>-tfstate
+#   DEPLOYER_SA        app-skeleton-<env>-deployer@<project>.iam.gserviceaccount.com
+#   TF_STATE_BUCKET    app-skeleton-<env>-tfstate
 
 on:
   workflow_dispatch:
@@ -39,7 +39,7 @@ jobs:
       ENV: ${{ github.event.inputs.environment }}
       PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
       REGION: ${{ vars.GCP_REGION }}
-      REPO: machote-docker
+      REPO: app-skeleton-docker
     steps:
       - uses: actions/checkout@v4
 
@@ -87,7 +87,7 @@ jobs:
 
       - name: Terraform init
         working-directory: terraform-mvp
-        run: terraform init -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" -backend-config="prefix=machote/${ENV}"
+        run: terraform init -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" -backend-config="prefix=app-skeleton/${ENV}"
 
       - name: Terraform apply
         working-directory: terraform-mvp

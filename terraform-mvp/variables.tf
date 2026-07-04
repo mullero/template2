@@ -28,7 +28,7 @@ variable "environment" {
 variable "app_name" {
   description = "Short application name; used to prefix resource names."
   type        = string
-  default     = "machote"
+  default     = "app-skeleton"
 }
 
 # --- Networking --------------------------------------------------------------
@@ -60,13 +60,13 @@ variable "db_version" {
 variable "db_name" {
   description = "Application database name."
   type        = string
-  default     = "machote"
+  default     = "app-skeleton"
 }
 
 variable "db_user" {
   description = "Application database user."
   type        = string
-  default     = "machote"
+  default     = "app-skeleton"
 }
 
 variable "db_disk_size_gb" {

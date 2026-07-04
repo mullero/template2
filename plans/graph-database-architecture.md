@@ -2,7 +2,7 @@
 
 ## Purpose
 
-machote uses **Postgres as the system of record** and **Neo4j as a derived
+app-skeleton uses **Postgres as the system of record** and **Neo4j as a derived
 projection** optimized for relationship traversal (e.g. "all tasks reachable
 from a project", dependency graphs, impact analysis). The graph exists to answer
 questions that are awkward or slow in relational SQL. It holds **no primary

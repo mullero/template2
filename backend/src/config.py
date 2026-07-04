@@ -47,12 +47,12 @@ class Settings(BaseSettings):
 
     # --- Environment ---------------------------------------------------------
     DEPLOYMENT_ENVIRONMENT: Environment = Environment.DEVELOPMENT
-    PROJECT_NAME: str = "machote"
-    PRODUCT_NAME: str = "machote"
+    PROJECT_NAME: str = "app-skeleton"
+    PRODUCT_NAME: str = "App Skeleton"
     LOG_LEVEL: str = "INFO"
 
     # --- Database ------------------------------------------------------------
-    DATABASE_URL: str = "postgresql+asyncpg://machote:CHANGE_ME@localhost:5432/machote"
+    DATABASE_URL: str = "postgresql+asyncpg://app_skeleton:CHANGE_ME@localhost:5432/app_skeleton"
     DB_POOL_SIZE: int = 5
     DB_MAX_OVERFLOW: int = 10
     DB_POOL_TIMEOUT: int = 30
@@ -83,6 +83,30 @@ class Settings(BaseSettings):
     AUTH_ENABLED: bool = True
     FIREBASE_PROJECT_ID: str = ""
     FIREBASE_AUTH_EMULATOR_HOST: str = ""
+
+    # --- Background jobs (Cloud Tasks) --------------------------------------
+    # When TASKS_ENABLED is false (local dev), the worker runs inline/synchronously
+    # right after the enqueue commit — no emulator needed.
+    TASKS_ENABLED: bool = False
+    CLOUD_TASKS_QUEUE: str = ""
+    CLOUD_TASKS_LOCATION: str = "us-central1"
+    TASKS_SERVICE_ACCOUNT: str = ""
+    INTERNAL_BASE_URL: str = "http://localhost:8000"
+    # Audience the worker requires on the Cloud Tasks OIDC token. Defaults to
+    # INTERNAL_BASE_URL when left blank.
+    TASKS_OIDC_AUDIENCE: str = ""
+    SCHEDULER_ENABLED: bool = False
+
+    # --- Email / notifications ----------------------------------------------
+    EMAIL_ENABLED: bool = False
+    EMAIL_PROVIDER: str = "sendgrid"
+    SENDGRID_API_KEY: str = ""
+    EMAIL_FROM: str = "no-reply@example.com"
+
+    # --- AI quota + uploads --------------------------------------------------
+    AI_DAILY_QUOTA_PER_TENANT: int = 100
+    MAX_UPLOAD_BYTES: int = 10_485_760
+    EXTRACTION_AUTOCOMMIT_THRESHOLD: float = 0.85
 
     # --- API + security ------------------------------------------------------
     API_HOST: str = "0.0.0.0"  # noqa: S104 — container binds all interfaces by design
@@ -129,7 +153,7 @@ class Settings(BaseSettings):
     # --- OpenTelemetry -------------------------------------------------------
     OTEL_ENABLED: bool = False
     OTEL_EXPORTER_OTLP_ENDPOINT: str = ""
-    OTEL_SERVICE_NAME: str = "machote-backend"
+    OTEL_SERVICE_NAME: str = "app-skeleton-backend"
 
     # --- Startup safety ------------------------------------------------------
     DRIFT_CHECK_ENABLED: bool = True
@@ -161,6 +185,11 @@ class Settings(BaseSettings):
     def dev_or_test(self) -> bool:
         return self.is_development or self.is_test
 
+    @property
+    def tasks_oidc_audience(self) -> str:
+        """Audience the internal worker requires on Cloud Tasks OIDC tokens."""
+        return self.TASKS_OIDC_AUDIENCE or self.INTERNAL_BASE_URL
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
@@ -189,6 +218,8 @@ def validate_config() -> None:
         required_secrets["GEMINI_API_KEY"] = settings.GEMINI_API_KEY
     if settings.GRAPH_ENABLED:
         required_secrets["NEO4J_PASSWORD"] = settings.NEO4J_PASSWORD
+    if settings.EMAIL_ENABLED and settings.EMAIL_PROVIDER == "sendgrid":
+        required_secrets["SENDGRID_API_KEY"] = settings.SENDGRID_API_KEY
 
     placeholders = [name for name, value in required_secrets.items() if _PLACEHOLDER in value]
 

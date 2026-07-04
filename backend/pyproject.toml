@@ -1,7 +1,7 @@
 [project]
-name = "machote-backend"
+name = "app-skeleton-backend"
 version = "0.1.0"
-description = "machote — multi-tenant SaaS backend (FastAPI + SQLAlchemy async)"
+description = "app-skeleton — multi-tenant SaaS backend (FastAPI + SQLAlchemy async)"
 requires-python = ">=3.12"
 
 [tool.ruff]
@@ -63,6 +63,8 @@ module = [
     "slowapi.*",
     "opentelemetry.*",
     "neo4j.*",
+    "apscheduler.*",
+    "sendgrid.*",
 ]
 ignore_missing_imports = true
 

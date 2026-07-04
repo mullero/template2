@@ -19,6 +19,6 @@ terraform {
   # Remote state in GCS. Bootstrap the bucket first with scripts/bootstrap-state.sh,
   # then `terraform init -backend-config=environments/<env>.backend.hcl`.
   backend "gcs" {
-    prefix = "machote/state"
+    prefix = "app-skeleton/state"
   }
 }

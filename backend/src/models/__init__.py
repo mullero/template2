@@ -16,14 +16,27 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from src.models.document import Document
+    from src.models.job import Job
     from src.models.project import Project
+    from src.models.quota import QuotaUsage
     from src.models.task import Task
 
 
 def import_all_models() -> None:
     """Import every model module so it registers on ``Base.metadata``."""
+    from src.models.document import Document  # noqa: F401
+    from src.models.job import Job  # noqa: F401
     from src.models.project import Project  # noqa: F401
+    from src.models.quota import QuotaUsage  # noqa: F401
     from src.models.task import Task  # noqa: F401
 
 
-__all__ = ["Project", "Task", "import_all_models"]
+__all__ = [
+    "Document",
+    "Job",
+    "Project",
+    "QuotaUsage",
+    "Task",
+    "import_all_models",
+]

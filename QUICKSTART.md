@@ -1,6 +1,6 @@
 # QUICKSTART
 
-Get `machote` running locally in a few minutes.
+Get `app-skeleton` running locally in a few minutes.
 
 ## Prerequisites
 

@@ -10,7 +10,7 @@ LOCATION="${3:-US}"
 
 if [[ -z "${PROJECT_ID}" || -z "${BUCKET}" ]]; then
   echo "Usage: $0 <project_id> <bucket_name> [location]" >&2
-  echo "Example: $0 machote-prod machote-prod-tfstate US" >&2
+  echo "Example: $0 app-skeleton-prod app-skeleton-prod-tfstate US" >&2
   exit 1
 fi
 

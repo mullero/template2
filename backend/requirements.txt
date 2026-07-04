@@ -20,6 +20,14 @@ google-generativeai>=0.8,<0.9
 google-cloud-aiplatform>=1.71,<2
 google-cloud-storage>=2.18,<3
 
+# Background jobs (Cloud Tasks) + scheduling + OIDC verification
+google-cloud-tasks>=2.16,<3
+google-auth>=2.35,<3
+APScheduler>=3.10,<4
+
+# Email / notifications
+sendgrid>=6.11,<7
+
 # Observability
 opentelemetry-sdk>=1.28,<2
 opentelemetry-exporter-otlp-proto-grpc>=1.28,<2

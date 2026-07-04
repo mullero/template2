@@ -1,3 +1,3 @@
 # terraform init -backend-config=environments/test.backend.hcl
 bucket = "CHANGE_ME-tfstate"
-prefix = "machote/test"
+prefix = "app-skeleton/test"

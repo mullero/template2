@@ -1,1 +1,1 @@
-"""machote backend application package."""
+"""app-skeleton backend application package."""

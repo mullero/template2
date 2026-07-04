@@ -23,7 +23,7 @@ os.environ.setdefault("FIREBASE_AUTH_EMULATOR_HOST", "localhost:9099")
 os.environ.setdefault("NEO4J_PASSWORD", "test-neo4j-password")
 os.environ.setdefault(
     "TEST_DATABASE_URL",
-    "postgresql+asyncpg://machote:machote@localhost:5432/machote_test",
+    "postgresql+asyncpg://app_skeleton:app_skeleton@localhost:5432/app_skeleton_test",
 )
 os.environ["DATABASE_URL"] = os.environ["TEST_DATABASE_URL"]
 

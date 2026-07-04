@@ -1,6 +1,6 @@
-# machote — Copilot repository instructions
+# app-skeleton — Copilot repository instructions
 
-machote is a multi-tenant SaaS **starter skeleton**. It ships one complete
+app-skeleton is a multi-tenant SaaS **starter skeleton**. It ships one complete
 vertical slice (`Project` → `Task`) across a FastAPI backend, a React/Vite
 frontend, a Neo4j graph projection, and Terraform for Google Cloud Run. Treat it
 as a template: keep the structure, patterns, and guardrails intact when adding

@@ -11,7 +11,7 @@ from src.utils.normalization import normalize_name
     ("raw", "expected"),
     [
         ("  Hello   World ", "hello world"),
-        ("MACHOTE", "machote"),
+        ("WIDGET", "widget"),
         ("Café", "cafe"),
         ("a\tb\nc", "a b c"),
     ],

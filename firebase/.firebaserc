@@ -1,5 +1,5 @@
 {
   "projects": {
-    "default": "machote-local"
+    "default": "app-skeleton-local"
   }
 }

@@ -1,6 +1,6 @@
 # terraform-mvp
 
-Minimal, production-shaped Terraform for deploying **machote** to Google Cloud
+Minimal, production-shaped Terraform for deploying **app-skeleton** to Google Cloud
 Run with a private Cloud SQL (Postgres) backend, Artifact Registry, Secret
 Manager, and keyless GitHub Actions deploys via Workload Identity Federation.
 

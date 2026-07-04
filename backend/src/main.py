@@ -20,6 +20,9 @@ from starlette.middleware.cors import CORSMiddleware
 
 from src.api.routes import auth as auth_routes
 from src.api.routes import dev as dev_routes
+from src.api.routes import documents as documents_routes
+from src.api.routes import internal as internal_routes
+from src.api.routes import jobs as jobs_routes
 from src.api.routes import projects as projects_routes
 from src.config import get_settings, validate_config
 from src.database import dispose_engine, get_engine, get_sessionmaker
@@ -28,6 +31,7 @@ from src.graph.constraints import apply_constraints
 from src.graph.driver import close_driver, get_driver, verify_connectivity
 from src.models import import_all_models
 from src.rate_limit import limiter
+from src.services.scheduler import start_scheduler, stop_scheduler
 from src.telemetry import configure_telemetry, instrument_fastapi
 from src.utils.logging import configure_logging, get_logger
 
@@ -71,10 +75,16 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
         await verify_connectivity()
         await apply_constraints(get_driver(), database=settings.NEO4J_DATABASE)
 
+    # Periodic in-process scheduler (best-effort; see plans/background-jobs.md).
+    if settings.SCHEDULER_ENABLED:
+        start_scheduler()
+
     logger.info("Application startup complete")
     try:
         yield
     finally:
+        if settings.SCHEDULER_ENABLED:
+            stop_scheduler()
         if settings.GRAPH_ENABLED:
             await close_driver()
         await dispose_engine()
@@ -117,6 +127,9 @@ def create_app() -> FastAPI:
     # --- Routers (all under /api) -------------------------------------------
     app.include_router(auth_routes.router, prefix="/api")
     app.include_router(projects_routes.router, prefix="/api")
+    app.include_router(documents_routes.router, prefix="/api")
+    app.include_router(jobs_routes.router, prefix="/api")
+    app.include_router(internal_routes.router, prefix="/api")
     if settings.ENABLE_DEV_ROUTES and not settings.is_production:
         app.include_router(dev_routes.router, prefix="/api")
 

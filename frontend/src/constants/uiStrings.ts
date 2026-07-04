@@ -5,7 +5,7 @@
  */
 
 export const appStrings = {
-  productName: 'machote',
+  productName: 'App Skeleton',
   tagline: 'Multi-tenant SaaS starter',
 } as const;
 
@@ -55,3 +55,34 @@ export const commonStrings = {
   cancel: 'Cancel',
   notFound: 'Page not found',
 } as const;
+
+export const documentStrings = {
+  pageTitle: 'Documents',
+  uploadButton: 'Upload document',
+  uploading: 'Uploading…',
+  empty: 'No documents yet. Upload one to start extraction.',
+  pendingReviewTab: 'Pending review',
+  allTab: 'All',
+  reviewBanner: (count: number): string =>
+    count === 1 ? '1 document awaiting review' : `${count} documents awaiting review`,
+  acceptButton: 'Accept',
+  rejectButton: 'Reject',
+  duplicateNotice: 'This document was already uploaded.',
+  loadError: 'Could not load documents.',
+  uploadError: 'Could not upload the document.',
+  columnName: 'File',
+  columnStatus: 'Status',
+  columnConfidence: 'Confidence',
+  columnCreated: 'Created',
+  columnActions: 'Actions',
+} as const;
+
+export const jobStrings = {
+  activeJobs: (count: number): string =>
+    count === 1 ? '1 background job running…' : `${count} background jobs running…`,
+} as const;
+
+export const navStringsExtra = {
+  documents: 'Documents',
+} as const;
+

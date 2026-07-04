@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 
 import { ThemeContext, type Theme, type ThemeContextValue } from '@/contexts/theme-context';
 
-const STORAGE_KEY = 'machote.theme';
+const STORAGE_KEY = 'app-skeleton.theme';
 
 function readInitialTheme(): Theme {
   const stored = localStorage.getItem(STORAGE_KEY);

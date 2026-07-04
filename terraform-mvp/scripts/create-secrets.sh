@@ -4,7 +4,7 @@
 # are read from stdin/env so they never touch the repo or Terraform state.
 #
 # Usage:
-#   PROJECT_ID=machote-prod ENV=prod ./scripts/create-secrets.sh
+#   PROJECT_ID=app-skeleton-prod ENV=prod ./scripts/create-secrets.sh
 #
 # You will be prompted for each value. Existing versions are left intact unless
 # you enter a new value.
@@ -12,11 +12,11 @@ set -euo pipefail
 
 PROJECT_ID="${PROJECT_ID:-}"
 ENV="${ENV:-}"
-APP="${APP:-machote}"
+APP="${APP:-app-skeleton}"
 
 if [[ -z "${PROJECT_ID}" || -z "${ENV}" ]]; then
   echo "Set PROJECT_ID and ENV (test|staging|prod). Example:" >&2
-  echo "  PROJECT_ID=machote-prod ENV=prod $0" >&2
+  echo "  PROJECT_ID=app-skeleton-prod ENV=prod $0" >&2
   exit 1
 fi
 

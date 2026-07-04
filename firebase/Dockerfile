@@ -16,4 +16,4 @@ EXPOSE 9099 4000
 HEALTHCHECK --interval=10s --timeout=5s --start-period=20s --retries=12 \
   CMD wget -qO- http://127.0.0.1:9099/ >/dev/null 2>&1 || exit 1
 
-CMD ["firebase", "emulators:start", "--only", "auth", "--project", "machote-local"]
+CMD ["firebase", "emulators:start", "--only", "auth", "--project", "app-skeleton-local"]

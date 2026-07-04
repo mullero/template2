@@ -1,4 +1,4 @@
-# machote
+# app-skeleton
 
 > Multi-tenant SaaS starter — a production-grade, fail-closed, zero-warning
 > full-stack skeleton (FastAPI + React 19 + Postgres + Neo4j on GCP Cloud Run).

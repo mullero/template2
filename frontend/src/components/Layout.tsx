@@ -1,7 +1,8 @@
 /** App shell with header (product name, theme toggle, sign out). */
 import { type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 
-import { appStrings, navStrings } from '@/constants/uiStrings';
+import { appStrings, navStrings, navStringsExtra } from '@/constants/uiStrings';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -13,6 +14,14 @@ export function Layout({ children }: { children: ReactNode }): React.JSX.Element
     <div className="app-shell">
       <header className="app-header">
         <strong>{appStrings.productName}</strong>
+        <nav className="row">
+          <Link className="btn" to="/">
+            {navStrings.projects}
+          </Link>
+          <Link className="btn" to="/documents">
+            {navStringsExtra.documents}
+          </Link>
+        </nav>
         <div className="row">
           {backendUser?.email !== undefined && backendUser?.email !== null && (
             <span className="text-muted">{backendUser.email}</span>

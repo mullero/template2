@@ -14,6 +14,9 @@ const BootstrapPage = lazy(() =>
 const ProjectsPage = lazy(() =>
   import('@/pages/ProjectsPage').then((m) => ({ default: m.ProjectsPage })),
 );
+const DocumentsPage = lazy(() =>
+  import('@/pages/DocumentsPage').then((m) => ({ default: m.DocumentsPage })),
+);
 const NotFoundPage = lazy(() =>
   import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })),
 );
@@ -32,6 +35,14 @@ export function appRoutes(): React.JSX.Element {
           element={
             <Layout>
               <ProjectsPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/documents"
+          element={
+            <Layout>
+              <DocumentsPage />
             </Layout>
           }
         />
